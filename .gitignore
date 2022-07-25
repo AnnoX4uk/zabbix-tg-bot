@@ -16,3 +16,4 @@
 go.mod
 config.json
 main
+dockerfile

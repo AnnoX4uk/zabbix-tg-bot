@@ -36,3 +36,16 @@ You can test it with curl
  curl -X POST -d '{"message":"your message here"}' http://localhost:8080
 ```
 
+Or make alertscript for zabbix like this:
+
+```bash
+#!/bin/bash
+
+url=${1}
+theme=${2}
+message=${3}
+
+str=`jq --null-input --arg message "${3}" '{"message":$message}'`
+
+curl -X POST -d "${str}" "${url}"
+```

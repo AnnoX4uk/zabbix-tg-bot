@@ -3,8 +3,6 @@ name: Go
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
 
@@ -17,6 +15,8 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
+    - name: check arch
+      run: uname -a
 
     - name: Build
       run: go build main.go

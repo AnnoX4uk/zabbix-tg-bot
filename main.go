@@ -38,7 +38,12 @@ func getargs() (Configuration, error) {
 	} else if errors.Is(err, os.ErrNotExist) {
 		log.Printf("Configuration file not found, try run with environment variables")
 		chatid, _ := strconv.ParseInt(os.Getenv("CHATID"), 10, 64)
-		port, _ := strconv.Atoi(os.Getenv("PORT"))
+		var port int
+		if len(os.Getenv("PORT")) == 0 {
+			port = 8080
+		} else {
+			port, _ = strconv.Atoi(os.Getenv("PORT"))
+		}
 		configuration := Configuration{chatid, os.Getenv("TOKEN"), port}
 		return configuration, nil
 	}

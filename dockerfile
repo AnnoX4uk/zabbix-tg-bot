@@ -4,6 +4,7 @@ WORKDIR /app
 COPY ./* /app/
 RUN go build main.go
 FROM alpine as application
+RUN mkdir /app
 COPY --from=builder /app/main /app
 WORKDIR /app
 ENTRYPOINT [ "/app/main" ]

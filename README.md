@@ -19,7 +19,7 @@ Also you can set this variables as env:
 ```bash
 export CHATID="chatid"
 export TOKEN="token"
-export PORT="port"
+export PORT="port"  #default port is 8080
 ```
 
 ## First run

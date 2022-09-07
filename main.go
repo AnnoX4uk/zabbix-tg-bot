@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 )
@@ -20,16 +22,29 @@ type recv_message_str struct {
 	Message string
 }
 
-func getargs() Configuration {
-	file, _ := os.Open("config.json")
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
-	err := decoder.Decode(&configuration)
-	if err != nil {
-		fmt.Println("error:", err)
+func getargs() (Configuration, error) {
+	if _, err := os.Stat("config.json"); err == nil {
+		file, _ := os.Open("config.json")
+		defer file.Close()
+		decoder := json.NewDecoder(file)
+		configuration := Configuration{}
+		err := decoder.Decode(&configuration)
+		if err != nil {
+			fmt.Println("error:", err)
+			panic(err)
+		}
+		return configuration, nil
+
+	} else if errors.Is(err, os.ErrNotExist) {
+		log.Printf("Configuration file not found, try run with environment variables")
+		chatid, _ := strconv.ParseInt(os.Getenv("CHATID"), 10, 64)
+		port, _ := strconv.Atoi(os.Getenv("PORT"))
+		configuration := Configuration{chatid, os.Getenv("TOKEN"), port}
+		return configuration, nil
 	}
-	return (configuration)
+
+	return Configuration{}, errors.New("Something wrong in check vars")
+
 }
 
 func SendTgMessage(tgbot *tgbotapi.BotAPI) func(rw http.ResponseWriter, request *http.Request) {
@@ -38,18 +53,22 @@ func SendTgMessage(tgbot *tgbotapi.BotAPI) func(rw http.ResponseWriter, request 
 	}
 	return func(rw http.ResponseWriter, request *http.Request) {
 		if request.Method == "POST" {
-			conf := getargs()
-			decoder := json.NewDecoder(request.Body)
+			conf, err := getargs()
+			if err == nil {
+				decoder := json.NewDecoder(request.Body)
 
-			var req recv_message_str
+				var req recv_message_str
 
-			err := decoder.Decode(&req)
-			msg := tgbotapi.NewMessage(conf.Chatid, req.Message)
-			tgbot.Send(msg)
-			if err != nil {
-				panic(err)
+				err := decoder.Decode(&req)
+				msg := tgbotapi.NewMessage(conf.Chatid, req.Message)
+				tgbot.Send(msg)
+				if err != nil {
+					panic(err)
+				}
+				rw.WriteHeader(http.StatusOK)
+
 			}
-			rw.WriteHeader(http.StatusOK)
+
 		} else {
 			rw.WriteHeader(http.StatusMethodNotAllowed)
 			rw.Write([]byte("Method not allowed."))
@@ -58,7 +77,7 @@ func SendTgMessage(tgbot *tgbotapi.BotAPI) func(rw http.ResponseWriter, request 
 }
 
 func main() {
-	conf := getargs()
+	conf, _ := getargs()
 	bot, err := tgbotapi.NewBotAPI(conf.Token)
 	if err != nil {
 		log.Panic(err)

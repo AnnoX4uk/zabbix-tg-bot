@@ -8,25 +8,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-    - name: check arch
-      run: uname -a
-
-    - name: Build
-      run: go build main.go
-
-    - name: test
-      run: ./main
-    
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.0
-      with:
-        name: zabbix-tg-bot
-        path: ./main
-
+    - name: Build the Docker image
+      run: docker build . --file dockerfile --tag zabbix-tg-bot:$(date +%s)

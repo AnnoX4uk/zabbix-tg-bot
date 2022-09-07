@@ -15,6 +15,13 @@ The next, you create wery simple ```config.json``` with appsettings and paste TG
 
 ```
 
+Also you can set this variables as env:
+```bash
+export CHATID="chatid"
+export TOKEN="token"
+export PORT="port"
+```
+
 ## First run
 
 When you place your ```config.json``` in project folder, just run build and ther run application

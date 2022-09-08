@@ -56,3 +56,11 @@ str=`jq --null-input --arg message "${3}" '{"message":$message}'`
 
 curl -X POST -d "${str}" "${url}"
 ```
+## Docker image
+
+You can use docker image by command:
+```bash
+
+ docker run -d -e CHATID="chatid" -e TOKEN="token" -e PORT="portnumber"  annox/zbx-tg-bot
+
+```

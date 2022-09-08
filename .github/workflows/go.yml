@@ -24,6 +24,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./dockerfile
+        file: dockerfile
         push: true
         tags: ${{ secrets.REGISTRY_USERNAME }}/zbx-tg-bot:latest
